@@ -1,48 +1,56 @@
 <?php
 
-	namespace Tests;
-	use \Router\Router;
-	use Symfony\Component\Yaml\Yaml;
-	
-	class RouterTest extends \PHPUnit_Framework_TestCase {
+namespace Tests;
 
-		protected $router;
+use Services\Router\Router;
+use Services\Router\Route;
+use Symfony\Component\Yaml\Yaml;
 
-		public function setUp() {
+/**
+ * Description of RouterTest
+ *
+ * @author antoine
+ */
+class RouterTest extends \PHPUnit_Framework_TestCase
+{
 
-			$this->router = new Router; 
+    protected $router;
+    protected $urls;
 
-		}
-		public function assertPreConditions() {
+    public function setUp()
+    {
+        $this->router = new Router;
+        $this->urls = Yaml::parse(__DIR__ . '/Fixtures/urls.yml');
+    }
 
-			$this->assertEquals(0, count($this->router)); 
-		}
-		public function testAddRoute() {
-			$this->router->addRoute(Yaml::parse(__DIR__.'/Fixtures/routes.yml'));
-			$this->assertEquals(4, count($this->router)); 
-		}
+    public function assertPreConditions()
+    {
+        $this->assertEquals(0, count($this->router));
+    }
 
-		public function testRedefRouteException() {
-			$this->router->addRoute(Yaml::parse(__DIR__ . '/Fixtures/routes.yml'));
-			$this->setExpectedException('RuntimeException', 'cannot override route "BlogController_index"');
-			$this->router->addRoute(Yaml::parse(__DIR__ . '/Fixtures/routes2.yml')); 
-		}
+    public function testAddRoutes()
+    {
+        $routes = Yaml::parse(__DIR__ . '/Fixtures/routes.yml');
 
-		public function testUrlBlogControllerShowId() {
+        foreach ($routes as $route) {
+            $this->router->addRoute(new Route($route));
+        }
+        $this->assertEquals(5, count($this->router));
+    }
 
-		// ajouter le fichier des routes
-		$this->router->addRoute(Yaml::parse(__DIR__ . '/Fixtures/routes.yml'));
-		// on ajoute les def des routes à la classe Routes $this->router->addRoute(Yaml::parse(__DIR__ . '/Fixtures/routes.yml')); $id = 0;
-		$urls=Yaml::parse(__DIR__ . '/Fixtures/urls.yml') ;
-		$id=0;
-		foreach ($urls['BlogController_show'] as $url) {
-			$this->assertEquals(json_encode([
-				'controller' => 'Controllers\BlogController', 
-				'action' => 'show',
-				'params' => [
-				'id' => (string) ++$id ]
-				]), json_encode($this->router->getRoute($url))); 
-			}
-		}
+    public function testBadConnectRouteYml()
+    {
+        $routes = Yaml::parse(__DIR__ . '/Fixtures/bad.yml');
+        $this->setExpectedException('RuntimeException', 'Bad syntax connect');
+        $this->router->addRoute(new Route($routes['BlogController_index']));
+    }
 
-	}
+    public function testNoParamsReturnNull()
+    {
+        $routes = Yaml::parse(__DIR__ . '/Fixtures/noparam.yml');
+        $this->router->addRoute(new Route($routes['BlogController_index']));
+        $r = $this->router->getRoute('/');
+        $this->assertEquals($r->getParams(), NULL);
+    }
+
+}
