@@ -1,0 +1,10 @@
+blogController_index: 
+  url: /
+blogController_store: 
+  url: /store/1
+blogController_edit: 
+  url: /edit/1
+BlogController_show: 
+  url1: /php-tour-2015/1
+  url2: /php-tour-2015/2
+  url3: /php5/3
