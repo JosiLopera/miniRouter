@@ -1,4 +1,4 @@
-![Build Status](https://travis-ci.org/josiLopera/Router.svg?branch=master) 
+![Build Status](https://travis-ci.org/josiLopera/miniRouter.svg?branch=master) 
 
 # Router
 
